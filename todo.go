@@ -42,7 +42,20 @@ func main() {
 				return
 			}
 		case "2":
-
+			fmt.Println("Please write the ID of the task you would like to be updated: ")
+			input, _ := reader.ReadString('\n')
+			input = strings.TrimSpace(input)
+			id, err := strconv.Atoi(input)
+			if err != nil {
+				log.Println("The value you entered is not valid, please try again...")
+			} else {
+				Update(id)
+			}
+			_, err = reader.ReadString('\n')
+			if err != nil {
+				fmt.Println("Error reading input:", err)
+				return
+			}
 		case "3":
 			fmt.Println("Please write the ID of the task you would like to be deleted: ")
 			input, _ := reader.ReadString('\n')
@@ -158,8 +171,61 @@ func ReadAll() [][]string {
 	return result
 }
 
-func Update() {
+func Update(id int) {
+	var data [][]string = ReadAll()
 
+	file, err := os.OpenFile("list.csv", os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		log.Fatalf("Failed to open file: %s", err)
+	}
+	defer file.Close()
+
+	reader := bufio.NewReader(os.Stdin)
+	w := csv.NewWriter(file)
+
+	missing := true
+
+	for _, row := range data {
+		curr, _ := strconv.Atoi(row[0])
+		if id == curr {
+			fmt.Printf("Editing task id %d...\n", id)
+			fmt.Println("Please enter a new name (keep blank if you want to keep the same name):")
+
+			input, _ := reader.ReadString('\n')
+			input = strings.TrimSpace(input)
+
+			if input != "" {
+				row[1] = input
+				fmt.Println("Name successfully changed...")
+			} else {
+				fmt.Println("Name unchanged...")
+			}
+
+			fmt.Println("Do you want to change the task complete status? ('Y' to change, 'N' or blank to leave current status):")
+
+			input, _ = reader.ReadString('\n')
+			input = strings.TrimSpace(input)
+
+			if input == "Y" || input == "y" {
+				if row[2] == "True" {
+					row[2] = "False"
+				} else {
+					row[2] = "True"
+				}
+				fmt.Println("Status changed successfully...")
+			} else {
+				fmt.Println("Status unchanged...")
+			}
+
+			w.WriteAll(data)
+			missing = false
+			fmt.Printf("Task with id %d has been sucessfully updated. Press enter to continue...\n", id)
+			break
+		}
+	}
+	if missing {
+		fmt.Println("ID you inputed was not found...")
+	}
 }
 
 func Delete(id int) {
