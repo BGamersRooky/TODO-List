@@ -14,17 +14,11 @@ import (
 	"strings"
 )
 
+// Main program function
 func main() {
 	reader := bufio.NewReader(os.Stdin)
-
 	Init()
 
-	//Create("Test task")
-	//result = ReadLast()
-	//result = ReadAll()
-	//fmt.Printf("First available index is: %d", FirstAvailableIndex(ReadAll()))
-
-	//fmt.Println(text)
 	for {
 		exec.Command("cls")
 		MainPrint()
@@ -84,6 +78,7 @@ func main() {
 	}
 }
 
+// Initialization; checks if list.csv file exists and if not it creates it.
 func Init() {
 	file, err := os.OpenFile("list.csv", os.O_CREATE|os.O_EXCL, 0644)
 	if err != nil {
@@ -92,6 +87,7 @@ func Init() {
 	defer file.Close()
 }
 
+// Create a new record, generate ID and write it to the CSV file
 func Create(name string) {
 	file, err := os.OpenFile("list.csv", os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
@@ -118,6 +114,7 @@ func Create(name string) {
 	fmt.Printf("Created a new task ID-%d called '%s'. Press enter to continue...\n", id, name)
 }
 
+// Fetch only the last record in the CSV file
 func ReadLast() []string {
 	file, err := os.OpenFile("list.csv", os.O_APPEND|os.O_RDONLY, 0644)
 	if err != nil {
@@ -145,6 +142,7 @@ func ReadLast() []string {
 	return result
 }
 
+// Fetch all data from the CSV file
 func ReadAll() [][]string {
 	file, err := os.OpenFile("list.csv", os.O_APPEND|os.O_RDONLY, 0644)
 	if err != nil {
@@ -171,6 +169,7 @@ func ReadAll() [][]string {
 	return result
 }
 
+// Update taks in CSV file
 func Update(id int) {
 	var data [][]string = ReadAll()
 
@@ -228,6 +227,7 @@ func Update(id int) {
 	}
 }
 
+// Delete task from CSV file
 func Delete(id int) {
 	var data [][]string = ReadAll()
 
@@ -284,12 +284,14 @@ func FirstAvailableIndex(data [][]string) int {
 	return result
 }
 
+// Function used to format rows of data and print them
 func RowPrint(row []string) {
 	par1, par2, par3 := row[0], row[1], row[2]
 
 	fmt.Printf("%3s|%100s|%9s\n", par1, par2, par3)
 }
 
+// Function that prints out the list of current tasks with header and footer
 func MainPrint() {
 	var data [][]string
 	header := []string{"ID", "Description", "Complete"}
